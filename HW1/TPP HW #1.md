@@ -1,6 +1,4 @@
-# TPP HW #1
-
-### 40747024S - 于子緯
+## TPP2020-HW1-40747024S 于子緯
 
 ### main.cpp
 
@@ -103,7 +101,8 @@ public:
         direction = 0;
     }
     pair<int,int> go(const Maze maze);
-    void printLocation(pair<int,int> loc) { cout<<loc.second<<' '<<loc.first<<'\n'; }
+    void printLocation(pair<int,int> loc) { 
+        cout<<loc.second<<' '<<loc.first<<'\n'; }
 private:
     // 0: up, 1: right, 2: down, 3: left
     int direction;
@@ -140,7 +139,10 @@ pair<int,int> Robot::go(const Maze maze) {
         }
         // push location into my history.
         history.emplace_back(location);
-        // stamp stores index(+1) which the location & the direction at in history.
+        /*
+            stamp:
+            stores index(+1) which the location & the direction at in history.
+        */
         stamp[direction][location] = history.size();
         // trying which direction can I move.
         for ( int i=0; i<4; ++i ) {
