@@ -1,5 +1,10 @@
-#include <iostream>
 #include <string.h>
+
+void my_strncpy(char *obj1, const char *obj2, size_t n) {
+	// avoid stopping at '\0'
+	for ( size_t i=0; i<n; ++i )
+		obj1[i] = obj2[i];
+}
 
 class String {
 
@@ -16,7 +21,7 @@ public:
 		str_ = new char[obj.size_];
 		size_ = obj.size_;
 		capacity_ = obj.size_;
-		strncpy(str_, obj.str_, size_);
+		my_strncpy(str_, obj.str_, size_);
 	}
 
 	// 3. constructor with one parameter with type const char *
@@ -24,7 +29,7 @@ public:
 		str_ = new char[strlen(obj)];
 		size_ = strlen(obj);
 		capacity_ = strlen(obj);
-		strncpy(str_, obj, size_);
+		my_strncpy(str_, obj, size_);
 	}
 
 	// 4. destructor
@@ -45,12 +50,13 @@ public:
 			char *temp = new char[size_ + obj.size_];
 			capacity_ = size_ + obj.size_;
 			if ( str_ ) {
-				strcpy(temp, str_);
+				my_strncpy(temp, str_, size_);
 				delete[] str_;
 			}
 			str_ = temp;
 		}
-		strcat(str_, obj.str_);
+		for ( size_t i=size_; i<size_+obj.size_; ++i )
+			str_[i] = obj.str_[i-size_];
 		size_ += obj.size_;
 		return *this;
 	}
@@ -84,41 +90,68 @@ private:
 
 // A. relational operators (<, >, <=, >=, ==, !=)
 bool operator < (const String &obj1, const String &obj2) {
-	return strcmp(obj1.c_str(), obj2.c_str()) < 0;
+	size_t minimum_length = std::min(obj1.size(), obj2.size());
+	for ( size_t i=0; i<minimum_length; ++i )
+		if ( obj1[i] != obj2[i] )
+			return obj1[i] < obj2[i];
+
+	// if they have the same prefix, the shorter, the smaller
+	return obj1.size() < obj2.size();
 }
 bool operator > (const String &obj1, const String &obj2) {
-	return strcmp(obj1.c_str(), obj2.c_str()) > 0;
+	size_t minimum_length = std::min(obj1.size(), obj2.size());
+	for ( size_t i=0; i<minimum_length; ++i )
+		if ( obj1[i] != obj2[i] )
+			return obj1[i] > obj2[i];
+
+	// if they have the same prefix, the longer, the larger
+	return obj1.size() > obj2.size();
 }
 bool operator <= (const String &obj1, const String &obj2) {
-	return strcmp(obj1.c_str(), obj2.c_str()) <= 0;
+	size_t minimum_length = std::min(obj1.size(), obj2.size());
+	for ( size_t i=0; i<minimum_length; ++i )
+		if ( obj1[i] != obj2[i] )
+			return obj1[i] <= obj2[i];
+
+	// if they have the same prefix, compare the length of them
+	return obj1.size() <= obj2.size();
 }
 bool operator >= (const String &obj1, const String &obj2) {
-	return strcmp(obj1.c_str(), obj2.c_str()) >= 0;
+	size_t minimum_length = std::min(obj1.size(), obj2.size());
+	for ( size_t i=0; i<minimum_length; ++i )
+		if ( obj1[i] != obj2[i] )
+			return obj1[i] >= obj2[i];
+
+	// if they have the same prefix, compare the length of them
+	return obj1.size() >= obj2.size();
 }
 bool operator == (const String &obj1, const String &obj2) {
-	return strcmp(obj1.c_str(), obj2.c_str()) == 0;
+	// different length impies they're different
+	if ( obj1.size() != obj2.size() )	return false;	
+	for ( size_t i=0; i<obj1.size(); ++i )
+		if ( obj1[i] != obj2[i] )
+			return false;
+	return true;
 }
 bool operator != (const String &obj1, const String &obj2) {
-	return strcmp(obj1.c_str(), obj2.c_str()) != 0;
+	// different length impies they're different
+	if ( obj1.size() != obj2.size() )	return true;
+	size_t minimum_length = std::min(obj1.size(), obj2.size());
+	for ( size_t i=0; i<obj1.size(); ++i )
+		if ( obj1[i] != obj2[i] )
+			return true;
+	return false;
 }
 
 // B. operator <<, >>
 std::ostream & operator << (std::ostream &os, const String &obj) {
-	char *str = new char[obj.size_+1];
-	strncpy(str, obj.str_, obj.size_);
-	str[obj.size_] = '\0';
-	os << str;
-	delete[] str;
+	for ( size_t i=0; i<obj.size_; ++i )
+		os << obj.str_[i];
 	return os;
 }
-std::istream & operator >> (std::istream &is, String &obj) {
-	char *str = new char[is.gcount()];
-	is >> str;
-	String temp(str);
-	obj = temp;
-	delete[] str;
-	return is;
-}
+// std::istream & operator >> (std::istream &is, String &obj) {
+
+// }
 
 // C. operator +
 const String operator + (const String &obj1, const String &obj2) {
