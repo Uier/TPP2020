@@ -14,7 +14,9 @@ friend std::istream & operator >> (std::istream &is, String &obj);
 public:
 	
 	// 1. default constructor
-	String() = default;
+	String() {
+		str_ = new char[capacity_];
+	}
 
 	// 2. copy constructor
 	String(const String &obj) {
@@ -33,7 +35,9 @@ public:
 	}
 
 	// 4. destructor
-	~String() = default;
+	~String() {
+		if ( str_ )	delete[] str_;
+	}
 
 	// 5. size()
 	size_t size() const { return size_; }
