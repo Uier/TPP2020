@@ -1,0 +1,3 @@
+[submodule "Mini-Monopoly"]
+	path = Mini-Monopoly
+	url = https://github.com/Uier/Mini-Monopoly.git
